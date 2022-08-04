@@ -11,13 +11,32 @@
     <div id="map" style="width: 100%; height: 100%; background: #000000;"></div>
     <script type="text/javascript">
   //Creating the Map
-    var map = L.map('map').setView([0, 0], 0);
-    L.tileLayer('map/{z}/{x}/{y}.png', {
+	    var map = L.map('map', {
+
+      zoomDelta: 0.25,
+      zoomSnap: 0
+
+			}).setView([0, 0], 0);
+    L.tileLayer('map/{z}/{x}/{y}_map.png', {
+      tileSize: 1024,
+	zoomOffset: -2,
       continuousWorld: false,
       noWrap: true,  
-      minZoom: 0,
+      minZoom: 2,
       maxZoom: 5,
+			pixelRatio: window.devicePixelRatio || 1,
+			crs: L.CRS.Simple
     }).addTo(map);
+
+	    /*
+	   map.fitBounds(new L.LatLngBounds(
+map.unproject([0, 4096], map.getMaxZoom()),
+map.unproject([4096, 0], map.getMaxZoom())
+
+		       ));*/
+
+	   
+
   //Coordinate Finder
     var marker = L.marker([0, 0], {
       draggable: true,
