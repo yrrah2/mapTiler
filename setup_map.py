@@ -59,37 +59,27 @@ def convert_masks(totalDepth):
 
                 cv2.imwrite(filestr(depth, i, j, "map"), land_and_sea)
 
-
-def setup_main(mapfile, totalDepth):
-    basemap = cv2.imread(mapfile)
-
-
-    # Make the folders
+def create_folder_system(totalDepth):
     mkfolder("map")
     for depth in range(totalDepth):
         mkfolder("map/"+str(depth))
         for i in range(2**depth):
             mkfolder("map/"+str(depth)+"/"+str(i))
 
-    print("Making masks\n")
+def setup_main(mapfile, totalDepth):
+    basemap = cv2.imread(mapfile)
+
+    # Make the folders
+    create_folder_system(totalDepth)
 
     # Place the files
-    for depth in range(totalDepth-1):
-        for i in range(2**depth):
-            for j in range(2**depth):
-                print("Opening: {}/{}/{}.".format(depth, i, j))
-                x = cv2.imread(filestr(depth,i,j))
-                q = divide(x)
-                for k in range(2):
-                    for l in range(2):
-                        print("Updating: {}/{}/{}.".format(depth+1, 2*i+k, 2*j+l))
-                        cv2.imwrite(filestr(depth+1, 2*i+k, 2*j+l), q[k][l])
+    refactor_down(0, 0, 0, totalDepth)
 
     print("Converting to maps\n")
     convert_masks(totalDepth)
 
 
-def refactorUp(depth, x, y):
+def refactor_up(depth, x, y):
     print("Opening: {}/{}/{}.".format(depth, x, y))
     if depth > 0:
         # Load the image, and find the larger image to push it into
@@ -115,9 +105,9 @@ def refactorUp(depth, x, y):
         # Show the finished product
         print("Updating: {}/{}/{}.".format(depth-1, floor(x/2), floor(y/2)))
         cv2.imwrite(filestr(depth-1, floor(x/2), floor(y/2) ), larger)
-        refactorUp(depth-1, floor(x/2), floor(y/2))
+        refactor_up(depth-1, floor(x/2), floor(y/2))
 
-def refactorDown(depth, x, y, extent):
+def refactor_down(depth, x, y, extent):
     if extent > 0:
         print("Opening: {}/{}/{}.".format(depth, x, y))
         img = cv2.imread(filestr(depth, x, y))
@@ -129,8 +119,9 @@ def refactorDown(depth, x, y, extent):
                 
         for i in range(2):
             for j in range(2):
-                refactorDown(depth+1, 2*x+i, 2*y+j, extent-1)
+                refactor_down(depth+1, 2*x+i, 2*y+j, extent-1)
 
-convert_masks(4)
-#setup_main("world.png", 4)
+#create_folder_system(4)
+#convert_masks(4)
+setup_main("world.png", 4)
 #refactorDown(1,0,1,2)
