@@ -39,6 +39,7 @@ def divide(image):
     return quarters_resized
 
 def convert_masks(totalDepth):
+    print("\n--- Converting to maps ---\n")
     land = cv2.imread("land.png")
     sea = cv2.imread("sea.png")
 
@@ -75,13 +76,12 @@ def setup_main(mapfile, totalDepth):
     # Place the files
     refactor_down(0, 0, 0, totalDepth)
 
-    print("Converting to maps\n")
     convert_masks(totalDepth)
 
 
 def refactor_up(depth, x, y):
-    print("Opening: {}/{}/{}.".format(depth, x, y))
     if depth > 0:
+        print("Opening: {}/{}/{}.".format(depth, x, y))
         # Load the image, and find the larger image to push it into
         smaller = cv2.imread(filestr(depth,   x,          y          ))
         larger  = cv2.imread(filestr(depth-1, floor(x/2), floor(y/2) ))
@@ -121,7 +121,15 @@ def refactor_down(depth, x, y, extent):
             for j in range(2):
                 refactor_down(depth+1, 2*x+i, 2*y+j, extent-1)
 
+def refactor_both(depth, x, y, totalDepth):
+    extent = totalDepth-depth-1
+    print("\n--- Refactoring up ---\n")
+    refactor_up(depth, x, y)
+    print("\n--- Refactoring down ---\n")
+    refactor_down(depth, x, y, extent)
+
 #create_folder_system(4)
-#convert_masks(4)
-setup_main("world.png", 4)
-#refactorDown(1,0,1,2)
+#setup_main("world.png", 4)
+refactor_both(2,0,2,4)
+
+convert_masks(4)
